@@ -92,7 +92,8 @@ if __name__=="__main__":
   vis = vis_disparity(disp)
   vis = np.concatenate([img0_ori, vis], axis=1)
   imageio.imwrite(f'{args.out_dir}/vis.png', vis)
-  logging.info(f"Output saved to {args.out_dir}")
+  np.save(f'{args.out_dir}/disp.npy', disp)
+  logging.info(f"Outputs saved to {args.out_dir}")
 
   if args.remove_invisible:
     yy,xx = np.meshgrid(np.arange(disp.shape[0]), np.arange(disp.shape[1]), indexing='ij')

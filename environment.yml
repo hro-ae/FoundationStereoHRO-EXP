@@ -8,9 +8,10 @@ dependencies:
   - python=3.11
   - pip
   - pip:
-    - torch==2.4.1
-    - torchvision==0.19.1
-    - torchaudio==2.4.1
+    - --extra-index-url https://download.pytorch.org/whl/cu124
+    - torch==2.4.1+cu124
+    - torchvision==0.19.1+cu124
+    - torchaudio==2.4.1+cu124
     - scikit-image
     - omegaconf
     - opencv-contrib-python

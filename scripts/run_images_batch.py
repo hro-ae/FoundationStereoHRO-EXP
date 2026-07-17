@@ -95,6 +95,8 @@ left_images_dir = r"C:\Users\Marian\Desktop\HVH PINS\first_pos_fs"
 right_images_dir = r"C:\Users\Marian\Desktop\HVH PINS\second_pos_fs"
 
 output_path = r"C:\Users\Marian\Desktop\HVH PINS\fs_clouds"
+output_path_left_images_rectified = r"C:\Users\Marian\Desktop\HVH PINS\left_images_rectified"
+output_path_k_rectified = r"C:\Users\Marian\Desktop\HVH PINS\k_rectified"
 
 left_image_paths = []
 right_image_paths = []
@@ -106,6 +108,8 @@ hiera = 0
 valid_iters = 16
 
 os.makedirs(output_path, exist_ok=True)
+os.makedirs(output_path_left_images_rectified, exist_ok=True)
+os.makedirs(output_path_k_rectified, exist_ok=True)
 
 for f in os.listdir(left_images_dir):
     left_image_paths.append(os.path.join(left_images_dir, f))
@@ -118,8 +122,15 @@ for f in os.listdir(right_images_dir):
 right_image_paths.sort(key=lambda f: os.path.getmtime(f))
 
 for l_img_path, r_img_path in zip(left_image_paths, right_image_paths):
+    print(f"Left image path: {l_img_path}, right image path: {r_img_path}")
     img_left = cv2.imread(l_img_path)
     img_right = cv2.imread(r_img_path)
+
+    # img_left = cv2.imread(r"C:\Users\Marian\Desktop\HVH PINS\first_pos_fs\17821307939754074.jpg")
+    # img_right = cv2.imread(r"C:\Users\Marian\Desktop\HVH PINS\second_pos_fs\17821307994416888.jpg")
+
+    left_img_name = l_img_path.split("\\")[-1].split(".")[0]
+    right_img_name = r_img_path.split("\\")[-1].split(".")[0]
 
     h, w = img_left.shape[:2]
 
@@ -142,8 +153,23 @@ for l_img_path, r_img_path in zip(left_image_paths, right_image_paths):
 
     print(f"K rect: {K_rect}")
 
+    out_path_k_rectified = os.path.join(output_path_k_rectified,
+                                                 f"{left_img_name}_{right_img_name}.txt")
+
+    with open(out_path_k_rectified, "w+") as f:
+        flat = K_rect.flatten()
+        ln = " ".join(map(str, flat))
+        f.write(ln)
+
     rect1 = cv2.cvtColor(rect1, cv2.COLOR_BGR2RGB)
     rect2 = cv2.cvtColor(rect2, cv2.COLOR_BGR2RGB)
+
+    out_path_left_image_rectified = os.path.join(output_path_left_images_rectified, f"{left_img_name}_{right_img_name}.png")
+
+    cv2.imwrite(str(out_path_left_image_rectified), cv2.cvtColor(rect1, cv2.COLOR_RGB2BGR))
+
+    # cv2.imwrite("rectified_left.png", cv2.cvtColor(rect1, cv2.COLOR_RGB2BGR))
+    # cv2.imwrite("rectified_right.png", cv2.cvtColor(rect2, cv2.COLOR_RGB2BGR))
 
     img0 = Array(rect1)
     img1 = Array(rect2)
@@ -213,14 +239,11 @@ for l_img_path, r_img_path in zip(left_image_paths, right_image_paths):
     pcd.points = o3d.utility.Vector3dVector(xyz.astype(np.float64))
     pcd.colors = o3d.utility.Vector3dVector(col.astype(np.float64))
 
-    left_img_name = l_img_path.split("\\")[-1].split(".")[0]
-    right_img_name = r_img_path.split("\\")[-1].split(".")[0]
-
     out_path = os.path.join(output_path, f"{left_img_name}_{right_img_name}.ply")
 
-    # o3d.io.write_point_cloud(out_path, pcd)
+    o3d.io.write_point_cloud(out_path, pcd)
     # imageio.imwrite(out_path.replace('.ply', '.png'), rect1)
-    cv2.imwrite("rectified_left.png", cv2.cvtColor(rect1, cv2.COLOR_RGB2BGR))
-    cv2.imwrite("rectified_right.png", cv2.cvtColor(rect2, cv2.COLOR_RGB2BGR))
-    break
+    # cv2.imwrite("rectified_left.png", cv2.cvtColor(rect1, cv2.COLOR_RGB2BGR))
+    # cv2.imwrite("rectified_right.png", cv2.cvtColor(rect2, cv2.COLOR_RGB2BGR))
+    # break
 
